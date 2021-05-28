@@ -1,51 +1,57 @@
 use chrono::{DateTime, Local};
-use std::thread;
-use log::{Record, LevelFilter};
 use env_logger::fmt::Formatter;
 use env_logger::Builder;
+use log::{LevelFilter, Record};
 use std::io::Write;
+use std::thread;
 
 #[tokio::main]
 async fn main() {
-    use manggis::middleware::kafka::Producer;
-    use manggis::middleware::kafka::ProducerConfig;
     use manggis::middleware::kafka::Consumer;
     use manggis::middleware::kafka::ConsumerConfig;
     use manggis::middleware::kafka::Processor;
+    use manggis::middleware::kafka::Producer;
+    use manggis::middleware::kafka::ProducerConfig;
 
     setup_logger(true, Some("rdkafka=error"));
 
     let producer = Producer::new(&ProducerConfig {
         brockers: Some("localhost:9092".into()),
         message_timeout_ms: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     let consumer = Consumer::new(&ConsumerConfig {
         enable_auto_commit: Some("false".into()),
         group_id: Some("test".into()),
         session_timeout_ms: Some("60000".into()),
         brockers: Some("localhost:9092".into()),
-    }).unwrap();
+    })
+    .unwrap();
 
-    let handles = (0..1).map(|index| {
-        // let producer = std::sync::Arc::new(&producer); // wrong
-        // let producer = std::sync::Arc::clone(&producer);
-        let producer = producer.clone();
-        let output = tokio::spawn(async move {
-            println!("producer: {} start!", index);
-            loop {
-                // println!("[loop] producer: {}!", index);
-                let payload = format!("index: {} - {:?}", index, std::time::SystemTime::now());
-                let _status = producer.send("testing-topic", payload.as_bytes()).await.unwrap();
-            }
-        });
-        ()
-    }).collect::<Vec<_>>();
+    // let handles = (0..8)
+    //     .map(|index| {
+    //         // let producer = std::sync::Arc::new(&producer); // wrong
+    //         // let producer = std::sync::Arc::clone(&producer);
+    //         let producer = producer.clone();
+    //         let output = tokio::spawn(async move {
+    //             println!("producer: {} start!", index);
+    //             for _ in (0..4) {
+    //                 // println!("[loop] producer: {}!", index);
+    //                 let payload = format!("index: {} - {:?}", index, std::time::SystemTime::now());
+    //                 let _status = producer
+    //                     .send("testing-topic", payload.as_bytes())
+    //                     .await
+    //                     .unwrap();
+    //             }
+    //         });
+    //         ()
+    //     })
+    //     .collect::<Vec<_>>();
 
     let processor = std::sync::Arc::new(Processor {});
     consumer.poll("testing-topic", processor.clone()).await;
 }
-
 
 pub fn setup_logger(log_thread: bool, rust_log: Option<&str>) {
     let output_format = move |formatter: &mut Formatter, record: &Record| {

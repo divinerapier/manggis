@@ -18,4 +18,3 @@ impl From<(KafkaError, OwnedMessage)> for Error {
         Error::ProducerError(e)
     }
 }
-

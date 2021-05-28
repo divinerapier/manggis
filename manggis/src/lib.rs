@@ -1,7 +1,8 @@
-pub mod traits;
-pub mod middleware;
+pub mod channelprocessor;
 pub mod error;
+pub mod middleware;
 pub mod result;
+pub mod traits;
 
 pub use traits::*;
 
