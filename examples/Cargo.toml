@@ -7,7 +7,7 @@ edition = "2018"
 # If you copy one of the examples into a new project, you should be using
 # [dependencies] instead.
 [dev-dependencies]
-rdkafka = { version = "0.25", features = ["cmake-build"] }
+rdkafka = { version = "0.26", features = ["cmake-build"] }
 async-std = { version = "1.9.0", features = ["attributes"] }
 backoff = "0.1.5"
 chrono = "0.4.0"
@@ -23,6 +23,8 @@ futures = "*"
 log = "*"
 manggis = {path = "../manggis"}
 uuid = "0.8.2"
+mongodb = "2.0.0-beta"
+
 
 [[example]]
 name = "kafka"
@@ -35,3 +37,11 @@ path = "kafka-producer/main.rs"
 [[example]]
 name = "kafka-consumer"
 path = "kafka-consumer/main.rs"
+
+[[example]]
+name = "mongo"
+path = "mongo/main.rs"
+
+[[example]]
+name = "runtime"
+path = "runtime/main.rs"
