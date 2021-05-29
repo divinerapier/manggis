@@ -2,51 +2,44 @@ use chrono::{DateTime, Local};
 use env_logger::fmt::Formatter;
 use env_logger::Builder;
 use log::{LevelFilter, Record};
+use manggis::middleware::kafka::{ConsumerConfig, Processor};
 use std::io::Write;
 use std::thread;
 
 #[tokio::main]
 async fn main() {
-    use manggis::middleware::kafka::Consumer;
-    use manggis::middleware::kafka::ConsumerConfig;
-    use manggis::middleware::kafka::Processor;
-    use manggis::middleware::kafka::Producer;
-    use manggis::middleware::kafka::ProducerConfig;
-
     setup_logger(true, Some("rdkafka=error"));
 
-    let producer = Producer::new(&ProducerConfig {
-        brockers: Some("localhost:9092".into()),
-        message_timeout_ms: None,
-    })
-    .unwrap();
+    let matches = clap::App::new("kafka-consumer")
+        .version("v0.1")
+        .author("divinerapier <sihao.fang@outlook.com>")
+        .about("An example about kafka producer.")
+        .arg(
+            clap::Arg::with_name("manul-commit")
+                .long("manul-commit")
+                .value_name("COMSUMER_MANUL_COMMIT")
+                .help("Sets consumer commit message manuly")
+                .takes_value(false),
+        )
+        .arg(
+            clap::Arg::with_name("enable-auto-commit")
+                .long("enable-auto-commit")
+                .value_name("CONSUMER_ENABLE_AUTO_COMMIT")
+                .help("Sets the consumer enable auto commit")
+                .takes_value(false),
+        )
+        .get_matches();
+
+    let manul_commit = matches.is_present("manul-commit");
+    let enable_auto_commit = matches.is_present("enable-auto-commit");
 
     let consumer = ConsumerConfig::default()
         .set_brockers("localhost:9092")
-        .set_enable_auto_commit(true)
+        .set_enable_auto_commit(enable_auto_commit)
         .set_session_timeout_ms(60000)
+        .set_manul_commit(manul_commit)
         .build()
         .unwrap();
-
-    // let handles = (0..8)
-    //     .map(|index| {
-    //         // let producer = std::sync::Arc::new(&producer); // wrong
-    //         // let producer = std::sync::Arc::clone(&producer);
-    //         let producer = producer.clone();
-    //         let output = tokio::spawn(async move {
-    //             println!("producer: {} start!", index);
-    //             for _ in (0..4) {
-    //                 // println!("[loop] producer: {}!", index);
-    //                 let payload = format!("index: {} - {:?}", index, std::time::SystemTime::now());
-    //                 let _status = producer
-    //                     .send("testing-topic", payload.as_bytes())
-    //                     .await
-    //                     .unwrap();
-    //             }
-    //         });
-    //         ()
-    //     })
-    //     .collect::<Vec<_>>();
 
     let processor = std::sync::Arc::new(Processor {});
     consumer.poll("testing-topic", processor.clone()).await;

@@ -24,7 +24,14 @@ log = "*"
 manggis = {path = "../manggis"}
 uuid = "0.8.2"
 
-
 [[example]]
 name = "kafka"
 path = "kafka/main.rs"
+
+[[example]]
+name = "kafka-producer"
+path = "kafka-producer/main.rs"
+
+[[example]]
+name = "kafka-consumer"
+path = "kafka-consumer/main.rs"
