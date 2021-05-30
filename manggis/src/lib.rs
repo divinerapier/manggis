@@ -3,6 +3,7 @@ pub mod error;
 pub mod middleware;
 pub mod result;
 pub mod traits;
+pub mod configuration;
 
 pub use traits::*;
 
