@@ -19,7 +19,8 @@ async fn main() {
 
     // for_each().await;
 
-    map().await;
+    // map().await;
+    map_join_all().await;
 
     println!("elapsed: {}", start.elapsed().as_secs_f64());
     // // for index in 0..16 {
@@ -109,6 +110,35 @@ async fn map() {
             let a = h.await.await.unwrap();
             println!("finish index: {} res: {}", a.0, a.1.await);
         }
+    }
+    .await
+}
+
+async fn map_join_all() {
+    let handles = futures::stream::iter(0..16)
+        .map(|index| async move {
+            let h = tokio::spawn(async move {
+                println!("start index: {}", index);
+                sleep(Duration::from_secs(1)).await;
+                let res = futures::stream::iter(0u128..1000).fold(0u128, |a, b| async move {
+                    sleep(Duration::from_nanos(1)).await;
+                    a + b * b
+                });
+                (index, res.await)
+            });
+            h.await
+        })
+        .collect::<Vec<_>>()
+        .await;
+
+    async {
+        for i in futures::future::join_all(handles).await {
+            println!("{:?}", i);
+        }
+        // for h in handles {
+        //     let a = h.await.await.unwrap();
+        //     println!("finish index: {} res: {}", a.0, a.1.await);
+        // }
     }
     .await
 }
