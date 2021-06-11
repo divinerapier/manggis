@@ -21,11 +21,11 @@ smol = "1.2.4"
 tokio = { version = "1.6", features = ["macros", "rt-multi-thread", "time"] }
 futures = "*"
 log = "*"
-manggis = {path = "../manggis"}
+manggis = { path = "../manggis" }
 uuid = "0.8.2"
 mongodb = "2.0.0-beta"
 config = "0.11"
-
+redis = { version = "0.20.1", features = ["tokio-comp"] }
 
 [[example]]
 name = "kafka"
@@ -46,3 +46,7 @@ path = "mongo/main.rs"
 [[example]]
 name = "runtime"
 path = "runtime/main.rs"
+
+[[example]]
+name = "redis"
+path = "redis/main.rs"

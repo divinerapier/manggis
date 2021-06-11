@@ -90,7 +90,7 @@ async fn for_each() {
 async fn map() {
     let handles = futures::stream::iter(0..16)
         .map(|index| async move {
-            let h =tokio::spawn(async move {
+            let h = tokio::spawn(async move {
                 println!("start index: {}", index);
                 sleep(Duration::from_secs(1)).await;
                 let res = futures::stream::iter(0u128..1000).fold(0u128, |a, b| async move {
